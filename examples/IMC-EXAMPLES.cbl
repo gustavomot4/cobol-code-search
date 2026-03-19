@@ -24,6 +24,3 @@
 
             STOP RUN.
         END PROGRAM IMC.
-
-
-           
