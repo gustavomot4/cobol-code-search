@@ -1,54 +1,57 @@
-# Execução do Sistema COBOL
+# 🔎 COBOL Code Search
 
-Este projeto utiliza **GnuCOBOL** para compilação e execução dos programas.
+Prova de conceito desenvolvida em ambiente profissional: um programa **COBOL que lê o código-fonte de outro programa COBOL** e localiza trechos dentro dele.
 
-## Pré-requisitos
+O problema por trás é típico de manutenção de sistemas legados — em bases COBOL grandes, encontrar onde um trecho, uma variável ou uma rotina aparece no fonte é trabalho manual e caro. A PoC valida que a própria linguagem consegue fazer essa varredura, sem depender de ferramenta externa.
 
-Antes de executar o sistema, é necessário ter:
+<!-- TODO: uma frase sobre o contexto real — que necessidade da equipe originou a PoC e qual foi o desfecho (virou ferramenta interna? ficou como estudo de viabilidade?). É isso que transforma o repositório em experiência profissional demonstrável. -->
 
-* **WSL (Windows Subsystem for Linux)** instalado
-* **Ubuntu ou outra distribuição Linux**
-* **GnuCOBOL**
+---
 
-## Instalação do GnuCOBOL
+## 🧩 Como funciona
 
-No terminal do Linux (WSL):
+| Arquivo | Papel |
+| --- | --- |
+| `searchCode.cbl` | **O buscador.** Abre um fonte `.cbl` como arquivo de entrada e varre linha a linha procurando o trecho informado |
+| `IMC.cbl` | **O alvo da busca.** Programa de cálculo de IMC usado como fonte de teste — código neutro, sem nada proprietário |
+| `TEMP-EDICAO.cbl` | <!-- TODO: descreva o papel deste arquivo (segundo alvo de teste? variação com cláusulas de edição?) --> |
+
+O `searchCode` trata o arquivo `.cbl` como dado, não como programa: lê o fonte sequencialmente e compara cada linha com o padrão buscado.
+
+<!-- TODO: descreva o que o programa devolve — número da linha, a linha inteira, contagem de ocorrências? -->
+
+---
+
+## 📋 Pré-requisitos
+
+- **GnuCOBOL** (a PoC roda sobre WSL ou Linux)
 
 ```bash
 sudo apt update
 sudo apt install gnucobol
-```
-
-Verifique se instalou corretamente:
-
-```bash
-cobc -v
+cobc -v          # confirma a instalação
 ```
 
 ---
 
-## Compilar o programa
-
-Para compilar o sistema:
+## ▶️ Como executar
 
 ```bash
-cobc -x nomePrograma.cob
+cobc -x searchCode.cbl   # compila o buscador
+./searchCode             # executa e informa o trecho a procurar
 ```
 
-Isso irá gerar o executável do programa.
+O programa alvo (`IMC.cbl`) precisa estar no mesmo diretório para ser lido.
 
----
-
-## Executar o sistema
-
-Após compilar, execute:
+Para rodar o alvo isoladamente e ver o que ele faz:
 
 ```bash
-./nomePrograma
+cobc -x IMC.cbl
+./IMC
 ```
 
 ---
 
-## Observação
+## 💡 Ambiente
 
-Para edição do código, recomenda-se utilizar o **VS Code** com a extensão **COBOL Language Support**.
+**VS Code** com a extensão **COBOL Language Support** — destaque de sintaxe e navegação no fonte.
