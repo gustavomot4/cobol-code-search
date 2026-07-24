@@ -1,8 +1,8 @@
-# 🔎 COBOL Code Search
+# 🔎 COBOL Search & Replace
 
-Prova de conceito desenvolvida em ambiente profissional: um programa **COBOL que lê o código-fonte de outro programa COBOL** e localiza trechos dentro dele.
+Prova de conceito desenvolvida em ambiente profissional: um programa **COBOL que lê o código-fonte de outro programa COBOL**, localiza trechos dentro dele, aplica alterações e grava o resultado como um fonte novo.
 
-O problema por trás é típico de manutenção de sistemas legados — em bases COBOL grandes, encontrar onde um trecho, uma variável ou uma rotina aparece no fonte é trabalho manual e caro. A PoC valida que a própria linguagem consegue fazer essa varredura, sem depender de ferramenta externa.
+O problema por trás é típico de manutenção de sistemas legados — em bases COBOL grandes, localizar e alterar um trecho repetido em vários fontes é trabalho manual, lento e sujeito a erro. A PoC valida que a própria linguagem consegue fazer essa varredura e edição, sem depender de ferramenta externa nem de tooling moderno no ambiente.
 
 <!-- TODO: uma frase sobre o contexto real — que necessidade da equipe originou a PoC e qual foi o desfecho (virou ferramenta interna? ficou como estudo de viabilidade?). É isso que transforma o repositório em experiência profissional demonstrável. -->
 
@@ -12,13 +12,19 @@ O problema por trás é típico de manutenção de sistemas legados — em bases
 
 | Arquivo | Papel |
 | --- | --- |
-| `searchCode.cbl` | **O buscador.** Abre um fonte `.cbl` como arquivo de entrada e varre linha a linha procurando o trecho informado |
-| `IMC.cbl` | **O alvo da busca.** Programa de cálculo de IMC usado como fonte de teste — código neutro, sem nada proprietário |
-| `TEMP-EDICAO.cbl` | <!-- TODO: descreva o papel deste arquivo (segundo alvo de teste? variação com cláusulas de edição?) --> |
+| `searchCode.cbl` | **O motor.** Abre um fonte `.cbl` como arquivo de entrada, varre linha a linha, localiza o trecho informado, aplica a alteração e grava a saída |
+| `IMC.cbl` | **Entrada (dummy).** Programa de cálculo de IMC usado como fonte de teste — código neutro, sem nada proprietário da empresa |
+| `TEMP-EDICAO.cbl` | **Saída.** O `IMC.cbl` já alterado pelo programa — resultado gerado, mantido no repositório como exemplo do que a PoC produz |
 
-O `searchCode` trata o arquivo `.cbl` como dado, não como programa: lê o fonte sequencialmente e compara cada linha com o padrão buscado.
+O ponto central: o `searchCode` trata o arquivo `.cbl` como **dado, não como programa**. Lê o fonte sequencialmente, compara cada linha com o padrão buscado e escreve a versão alterada em um arquivo de saída, preservando o original intacto.
 
-<!-- TODO: descreva o que o programa devolve — número da linha, a linha inteira, contagem de ocorrências? -->
+```
+IMC.cbl  ──▶  searchCode  ──▶  TEMP-EDICAO.cbl
+(entrada)      (busca e         (saída alterada)
+                altera)
+```
+
+<!-- TODO: descreva o critério de busca e a alteração aplicada — qual trecho ele procura no IMC.cbl e o que substitui? -->
 
 ---
 
@@ -37,18 +43,20 @@ cobc -v          # confirma a instalação
 ## ▶️ Como executar
 
 ```bash
-cobc -x searchCode.cbl   # compila o buscador
-./searchCode             # executa e informa o trecho a procurar
+cobc -x searchCode.cbl   # compila o motor
+./searchCode             # executa: lê IMC.cbl e gera TEMP-EDICAO.cbl
 ```
 
-O programa alvo (`IMC.cbl`) precisa estar no mesmo diretório para ser lido.
+O fonte de entrada (`IMC.cbl`) precisa estar no mesmo diretório. A saída é gravada como `TEMP-EDICAO.cbl` — o original nunca é sobrescrito.
 
-Para rodar o alvo isoladamente e ver o que ele faz:
+Para conferir que a saída continua sendo COBOL válido, basta compilá-la:
 
 ```bash
-cobc -x IMC.cbl
-./IMC
+cobc -x TEMP-EDICAO.cbl
+./TEMP-EDICAO
 ```
+
+Esse é, na prática, o critério de aceite da PoC: o fonte gerado tem que compilar e rodar.
 
 ---
 
